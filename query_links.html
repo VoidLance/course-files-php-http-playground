@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Parameter Link Tester</title>
+    <style>
+        body {
+            font-family: "Courier New", Courier, monospace;
+            margin: 1.25rem;
+            line-height: 1.45;
+            color: #111;
+            background: #fff;
+        }
+        .container {
+            max-width: 980px;
+        }
+        .links a {
+            display: block;
+            margin: 0.2rem 0;
+            color: #0033aa;
+            text-decoration: underline;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        input {
+            padding: 0.35rem;
+            border: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        button {
+            padding: 0.35rem 0.65rem;
+            border: 1px solid #999;
+            background: #f7f7f7;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        #generatedLink {
+            word-break: break-all;
+            display: inline-block;
+            margin-top: 0.75rem;
+        }
+        hr {
+            border: 0;
+            border-top: 1px dashed #bbb;
+            margin: 0.8rem 0;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>Query Parameter Test Links</h1>
+        <p>Minimal test page for query_handler.php</p>
+        <hr>
+
+        <section class="links">
+            <h2>Predefined Links</h2>
+            <a href="query_handler.php">No parameters</a>
+            <a href="query_handler.php?name=Alex">Single parameter</a>
+            <a href="query_handler.php?name=Alex&role=student">Two parameters</a>
+            <a href="query_handler.php?course=PHP&module=Superglobals&week=4">Multiple parameters</a>
+            <a href="query_handler.php?search=%3Cscript%3Ealert(1)%3C%2Fscript%3E">Sanitization test</a>
+            <a href="query_handler.php?hobby[]=coding&hobby[]=music">Array-style values</a>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Build Your Own Query (Optional Dynamic Feature)</h2>
+            <p>Add or remove parameters and generate a link to query_handler.php.</p>
+
+            <div id="rows"></div>
+
+            <button id="addParamBtn" type="button">Add Parameter</button>
+            <button id="buildBtn" type="button">Build Link</button>
+
+            <p>
+                Result:
+                <a id="generatedLink" href="query_handler.php">query_handler.php</a>
+            </p>
+        </section>
+    </main>
+
+    <script>
+        const rows = document.getElementById('rows');
+        const addParamBtn = document.getElementById('addParamBtn');
+        const buildBtn = document.getElementById('buildBtn');
+        const generatedLink = document.getElementById('generatedLink');
+
+        function addRow(key = '', value = '') {
+            const row = document.createElement('div');
+            row.className = 'row';
+
+            const keyInput = document.createElement('input');
+            keyInput.type = 'text';
+            keyInput.placeholder = 'Parameter name';
+            keyInput.value = key;
+
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.placeholder = 'Parameter value';
+            valueInput.value = value;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.textContent = 'Remove';
+            removeBtn.addEventListener('click', () => row.remove());
+
+            row.appendChild(keyInput);
+            row.appendChild(valueInput);
+            row.appendChild(removeBtn);
+            rows.appendChild(row);
+        }
+
+        function buildLink() {
+            const params = new URLSearchParams();
+            const rowElements = rows.querySelectorAll('.row');
+
+            rowElements.forEach((row) => {
+                const inputs = row.querySelectorAll('input');
+                const key = (inputs[0].value || '').trim();
+                const value = (inputs[1].value || '').trim();
+
+                if (key !== '') {
+                    params.append(key, value);
+                }
+            });
+
+            const query = params.toString();
+            const href = query ? `query_handler.php?${query}` : 'query_handler.php';
+
+            generatedLink.href = href;
+            generatedLink.textContent = href;
+        }
+
+        addParamBtn.addEventListener('click', () => addRow());
+        buildBtn.addEventListener('click', buildLink);
+
+        addRow('name', 'Alex');
+        addRow('role', 'student');
+        buildLink();
+    </script>
+</body>
+</html>
